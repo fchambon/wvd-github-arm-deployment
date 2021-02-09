@@ -44,7 +44,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Resource Group Management
-        uses: azure/CLI@v1.0.4
+        uses: azure/CLI@1.0.4
         with:
           inlineScript: |
             $rgExists = az group exists -n ${{ env.AZURE_RG }}
