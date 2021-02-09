@@ -7,6 +7,10 @@ env:
   AZURE_LOC: "northeurope" # Region Azure cible
   DEPLOYNAME: "Rollup-000" # Nom du déploiement
 
+  #Variables Image Gold W10
+  RG_IMAGES: "ADTSP-CI-PACKERIMAGE2-PROD" #Groupe de ressources contenant l'image construite via Packer
+  IMAGE_WVD: "W10-EVD-20h2" #Nom de l'image Managed
+
   #Variables WVD
   HOSTPOOLS_NAME: "HP-CICD-01" #Nom du Hostpool
 
@@ -31,5 +35,19 @@ jobs:
         run: |
           echo "Le jeton généré est: ${{ steps.var_exp.outputs.outexp }}"
 
-      - name: Download Repo conten
+      - name: Download Repo content
         uses: actions/checkout@v2
+
+      - name: Azure authentication
+        uses: Azure/login@v1.1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Resource Group Management
+        uses: azure/CLI@v1.0.4
+        with:
+          inlineScript: |
+            $rgExists = az group exists -n ${{ env.AZURE_RG }}
+            if ($rgExists -eq 'false') {
+            az group create --name ${{ env.AZURE_RG }} --location ${{ env.AZURE_LOC }}
+            }
