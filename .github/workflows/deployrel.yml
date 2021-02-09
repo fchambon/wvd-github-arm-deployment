@@ -44,11 +44,22 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           enable-AzPSSession: true
 
-      - name: Resource Group Management
-        uses: azure/CLI@1.0.4
+      - name: RG PS Management
+        uses: Azure/powershell@v1
         with:
+          azPSVersion: latest
           inlineScript: |
-            $rgExists = az group exists -n ${{ env.AZURE_RG }}
-            if ($rgExists -eq 'false') {
-            az group create --name ${{ env.AZURE_RG }} --location ${{ env.AZURE_LOC }}
+            Get-AzResourceGroup -Name ${{ env.AZURE_RG }} -ErrorVariable notPresent -ErrorAction SilentlyContinue
+            if ($notPresent)
+            {
+              New-AzResourceGroup -Name ${{ env.AZURE_RG }} -Location ${{ env.AZURE_LOC }}
             }
+
+#      - name: Resource Group Management
+#        uses: azure/CLI@1.0.4
+#        with:
+#          inlineScript: |
+#            $rgExists = az group exists -n ${{ env.AZURE_RG }}
+#            if ($rgExists -eq 'false') {
+#            az group create --name ${{ env.AZURE_RG }} --location ${{ env.AZURE_LOC }}
+#            }
