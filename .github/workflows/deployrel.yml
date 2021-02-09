@@ -42,6 +42,7 @@ jobs:
         uses: Azure/login@v1.1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+          enable-AzPSSession: true
 
       - name: Resource Group Management
         uses: azure/CLI@1.0.4
