@@ -13,6 +13,20 @@ env:
 
   #Variables WVD
   HOSTPOOLS_NAME: "HP-CICD-01" #Nom du Hostpool
+  POOLTYPE: "pooled" # Pool "pooled" ou "personal"
+  LBTYPE: "BreadthFirst" # Equilibrage de charge "BreathFirst" ou "Depthfirst"
+  WORKSPACE_NAME: "Workspace-01" # Nom du Workspace
+  DAGNAME: "Host-Pool-01-DAG" # Nom de l'Application Group" 
+  VMSIZE: "Standard_D2s_v3" # Gabarit des bureaux virtuels
+  NUMBERS_OF_VM: 2 # Nombre de hosts dans le Host Pool
+  HOST_NAME_PREFIX: "hostVDI" # Prefix des hosts  
+  DOMAINNAME: "adtsp.net" # Nom de l'ADDS à rejoindre
+  VIRTUALNETWORKRESOURCEGROUPNAME: "ADTSP-CI-INFRA-PROD" # Nom du ressource groupe du vnet joingnable par l'active directory (local) 
+  VIRTUALNETWORKNAME: "ADTSP-Vnet" # Nom du Virtual Network joingnable par l'active directory (local) 
+  SUBNETNAME: "vdiwvd" # Nom du subnet joingnable par l'active directory (local)
+  
+  # Variables pour le User Assignment (Azure AD) sur l'Application Group WVD
+  AADGroupName: "WVDUsers" # Groupe AAD contenant les utilisateurs à autoriser
 
 jobs:
 
@@ -54,6 +68,13 @@ jobs:
             {
               New-AzResourceGroup -Name ${{ env.AZURE_RG }} -Location ${{ env.AZURE_LOC }}
             }
+
+      - name: Validate WVD ARM Template
+        uses: azure/CLI@1.0.4
+        with:
+            azcliversion: 2.19.1
+            inlineScript: |
+              az deployment group validate --resource-group ${{ env.AZURE_RG }} --template-file ./ARM/azuredeploy.json --parameters 'hostpools_name=${{ env.HOSTPOOLS_NAME }}' 'dagname=${{ env.DAGNAME }}' 'poolType=${{ env.POOLTYPE }}' 'lbType=${{ env.LBTYPE }}' 'tokenExpirationTime=${{ steps.var_exp.outputs.outexp }}' 'workspaces_name=${{ env.WORKSPACE_NAME }}' 'vmSize=${{ env.VMSIZE }}' 'subscription_ID=${{ secrets.SUBSCRIPTION_ID }}' 'RG_Images=${{ env.RG_IMAGES  }}' 'Image_WDV=${{ env.IMAGE_WVD }}' 'Numbers_of_VM=${{ env.NUMBERS_OF_VM }}' 'host_name_prefix=${{ env.HOST_NAME_PREFIX }}' 'Username=${{ secrets.USERNAME }}' 'pwdUser=${{ secrets.USER_PWD }}' 'domainName=${{ env.DOMAINNAME }}' 'domainUsername=${{ secrets.DOMAINEUSERNAME }}' 'domainUsernamePassword=${{ secrets.DOMAINEUSERPWD }}' 'virtualNetworkResourceGroupName=${{ env.VIRTUALNETWORKRESOURCEGROUPNAME }}' 'virtualNetworkName=${{ env.VIRTUALNETWORKNAME }}' 'subnetName=${{ env.SUBNETNAME }}'
 
 #      - name: Resource Group Management
 #        uses: azure/CLI@1.0.4
