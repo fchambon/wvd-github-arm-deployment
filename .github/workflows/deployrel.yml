@@ -83,15 +83,12 @@ jobs:
             inlineScript: |
               az deployment group what-if --resource-group ${{ env.AZURE_RG }} --template-file ./ARM/azurewvd.json --parameters 'hostpools_name=${{ env.HOSTPOOLS_NAME }}' 'dagname=${{ env.DAGNAME }}' 'poolType=${{ env.POOLTYPE }}' 'lbType=${{ env.LBTYPE }}' 'tokenExpirationTime=${{ steps.var_exp.outputs.outexp }}' 'workspaces_name=${{ env.WORKSPACE_NAME }}' 'vmSize=${{ env.VMSIZE }}' 'subscription_ID=${{ secrets.SUBSCRIPTION_ID }}' 'RG_Images=${{ env.RG_IMAGES  }}' 'Image_WDV=${{ env.IMAGE_WVD }}' 'Numbers_of_VM=${{ env.NUMBERS_OF_VM }}' 'host_name_prefix=${{ env.HOST_NAME_PREFIX }}' 'Username=${{ secrets.USERNAME }}' 'pwdUser=${{ secrets.USER_PWD }}' 'domainName=${{ env.DOMAINNAME }}' 'domainUsername=${{ secrets.DOMAINUSERNAME }}' 'domainUsernamePassword=${{ secrets.DOMAINUSERPWD }}' 'virtualNetworkResourceGroupName=${{ env.VIRTUALNETWORKRESOURCEGROUPNAME }}' 'virtualNetworkName=${{ env.VIRTUALNETWORKNAME }}' 'subnetName=${{ env.SUBNETNAME }}'
 
-
-
-
-
-#      - name: Resource Group Management
-#        uses: azure/CLI@1.0.4
-#        with:
-#          inlineScript: |
-#            $rgExists = az group exists -n ${{ env.AZURE_RG }}
-#            if ($rgExists -eq 'false') {
-#            az group create --name ${{ env.AZURE_RG }} --location ${{ env.AZURE_LOC }}
-#            }
+      # this is the new step using the ms-teams-notification action
+      - name: Notify dedicated teams channel
+        uses: jdcargile/ms-teams-notification@v1.3
+        with:
+          github-token: ${{ github.token }} # this will use the runner's token.
+          ms-teams-webhook-uri: https://microsoft.webhook.office.com/webhookb2/ef8d16c9-11de-4c0f-9f2f-f419accdf3e8@72f988bf-86f1-41af-91ab-2d7cd011db47/IncomingWebhook/f5b044a2bd45484d88d4967d50331449/a8d22f4a-2ecb-4f02-9a95-4e4d2d417a24
+          notification-summary: Your custom notification message 
+          notification-color: 17a2b8
+          timezone: Europe/Paris
