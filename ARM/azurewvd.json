@@ -162,7 +162,6 @@
         {
             "type": "Microsoft.DesktopVirtualization/applicationgroups",
             "apiVersion": "2019-12-10-preview",
-            //"name": "[concat(parameters('hostpools_name'),'-DAG')]",
             "name": "[parameters('dagname')]",
             "location": "[parameters('location')]",
             "dependsOn": [
