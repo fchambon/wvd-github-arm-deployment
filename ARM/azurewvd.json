@@ -160,7 +160,7 @@
             }
         },
         {
-            "type": "Microsoft.DesktopVirtualization/applicationgroups",
+            "type": "Microsoft.DesktopVirtualization/applicationGroups",
             "apiVersion": "2019-12-10-preview",
             "name": "[parameters('dagname')]",
             "location": "[parameters('location')]",
