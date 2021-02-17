@@ -84,7 +84,7 @@ jobs:
               az deployment group what-if --resource-group ${{ env.AZURE_RG }} --template-file ./ARM/azurewvd.json --parameters 'hostpools_name=${{ env.HOSTPOOLS_NAME }}' 'dagname=${{ env.DAGNAME }}' 'poolType=${{ env.POOLTYPE }}' 'lbType=${{ env.LBTYPE }}' 'tokenExpirationTime=${{ steps.var_exp.outputs.outexp }}' 'workspaces_name=${{ env.WORKSPACE_NAME }}' 'vmSize=${{ env.VMSIZE }}' 'subscription_ID=${{ secrets.SUBSCRIPTION_ID }}' 'RG_Images=${{ env.RG_IMAGES  }}' 'Image_WDV=${{ env.IMAGE_WVD }}' 'Numbers_of_VM=${{ env.NUMBERS_OF_VM }}' 'host_name_prefix=${{ env.HOST_NAME_PREFIX }}' 'Username=${{ secrets.USERNAME }}' 'pwdUser=${{ secrets.USER_PWD }}' 'domainName=${{ env.DOMAINNAME }}' 'domainUsername=${{ secrets.DOMAINUSERNAME }}' 'domainUsernamePassword=${{ secrets.DOMAINUSERPWD }}' 'virtualNetworkResourceGroupName=${{ env.VIRTUALNETWORKRESOURCEGROUPNAME }}' 'virtualNetworkName=${{ env.VIRTUALNETWORKNAME }}' 'subnetName=${{ env.SUBNETNAME }}'
 
       # this is the new step using the ms-teams-notification action
-      - name: Notify dedicated teams channel
+      - name: Notification and approval
         uses: jdcargile/ms-teams-notification@v1.3
         with:
           github-token: ${{ github.token }} # this will use the runner's token.
@@ -92,3 +92,54 @@ jobs:
           notification-summary: WVD Arm Template has been validated! Ready to Deploy? 
           notification-color: 17a2b8
           timezone: Europe/Paris
+
+  Deploy:
+      runs-on: ubuntu-20.04
+      needs: Test-ARM
+      environment:
+        name: preprod 
+
+      steps:
+
+      - name: Download Repo content
+        uses: actions/checkout@v2
+
+      - name: Generation du Token Expiration Time
+        shell: pwsh
+        run: |
+          $Expiration=$((get-date).ToUniversalTime().AddHours(2).ToString('yyyy-MM-ddTHH:mm:ss.fffffffZ'))
+          echo "::set-output name=outexp::$($Expiration)"
+        id: var_exp   
+
+      - name: Azure authentication
+        uses: Azure/login@v1.1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy WVD ARM Template
+        uses: azure/CLI@1.0.4
+        with:
+            azcliversion: 2.19.1
+            inlineScript: |
+              az deployment group create --resource-group ${{ env.AZURE_RG }} --name ${{ env.DEPLOYNAME }} --template-file ./ARM/azurewvd.json --parameters 'hostpools_name=${{ env.HOSTPOOLS_NAME }}' 'dagname=${{ env.DAGNAME }}' 'poolType=${{ env.POOLTYPE }}' 'lbType=${{ env.LBTYPE }}' 'tokenExpirationTime=${{ steps.var_exp.outputs.outexp }}' 'workspaces_name=${{ env.WORKSPACE_NAME }}' 'vmSize=${{ env.VMSIZE }}' 'subscription_ID=${{ secrets.SUBSCRIPTION_ID }}' 'RG_Images=${{ env.RG_IMAGES  }}' 'Image_WDV=${{ env.IMAGE_WVD }}' 'Numbers_of_VM=${{ env.NUMBERS_OF_VM }}' 'host_name_prefix=${{ env.HOST_NAME_PREFIX }}' 'Username=${{ secrets.USERNAME }}' 'pwdUser=${{ secrets.USER_PWD }}' 'domainName=${{ env.DOMAINNAME }}' 'domainUsername=${{ secrets.DOMAINUSERNAME }}' 'domainUsernamePassword=${{ secrets.DOMAINUSERPWD }}' 'virtualNetworkResourceGroupName=${{ env.VIRTUALNETWORKRESOURCEGROUPNAME }}' 'virtualNetworkName=${{ env.VIRTUALNETWORKNAME }}' 'subnetName=${{ env.SUBNETNAME }}'
+
+  UserAccess:
+        runs-on: windows-2019
+        needs: Deploy
+
+        steps:
+
+        - name: Azure authentication
+          uses: Azure/login@v1.1
+          with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+            enable-AzPSSession: true
+
+        - name: Droits Utilisateurs
+          uses: azure/powershell@v1
+          with:
+             inlineScript: |
+                  New-AzRoleAssignment -ObjectId (Get-AzADGroup -DisplayName ${{ env.AADGroupName }}).Id -RoleDefinitionName "Desktop Virtualization User" -ResourceName ${{ env.DAGNAME }} -ResourceGroupName ${{ env.AZURE_RG }} -ResourceType 'Microsoft.DesktopVirtualization/applicationGroups'
+             azPSVersion: latest
+
+
