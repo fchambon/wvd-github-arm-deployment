@@ -16,7 +16,7 @@ env:
   POOLTYPE: "pooled" # Pool "pooled" ou "personal"
   LBTYPE: "BreadthFirst" # Equilibrage de charge "BreathFirst" ou "Depthfirst"
   WORKSPACE_NAME: "Workspace-01" # Nom du Workspace
-  DAGNAME: "Host-CICD-01-DAG" # Nom de l'Application Group" 
+  DAGNAME: "HP-CICD-01-DAG" # Nom de l'Application Group / Check dans le template concact parameters hostname -DAG
   VMSIZE: "Standard_D2s_v3" # Gabarit des bureaux virtuels
   NUMBERS_OF_VM: 2 # Nombre de hosts dans le Host Pool
   HOST_NAME_PREFIX: "hostVDI" # Prefix des hosts  
