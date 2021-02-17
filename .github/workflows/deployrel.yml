@@ -89,6 +89,6 @@ jobs:
         with:
           github-token: ${{ github.token }} # this will use the runner's token.
           ms-teams-webhook-uri: https://microsoft.webhook.office.com/webhookb2/ef8d16c9-11de-4c0f-9f2f-f419accdf3e8@72f988bf-86f1-41af-91ab-2d7cd011db47/IncomingWebhook/f5b044a2bd45484d88d4967d50331449/a8d22f4a-2ecb-4f02-9a95-4e4d2d417a24
-          notification-summary: Your custom notification message 
+          notification-summary: WVD Arm Template has been validated! Ready to Deploy? 
           notification-color: 17a2b8
           timezone: Europe/Paris
