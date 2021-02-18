@@ -135,7 +135,7 @@ jobs:
             creds: ${{ secrets.AZURE_CREDENTIALS }}
             enable-AzPSSession: true
 
-        - name: Droits Utilisateurs
+        - name: Droits Utilisateurs #SPN a besoin du role User Access Administrator 
           uses: azure/powershell@v1
           with:
              inlineScript: |
@@ -145,7 +145,7 @@ jobs:
         - name: Notification and approval
           uses: jdcargile/ms-teams-notification@v1.3
           with:
-            github-token: ${{ github.token }} # this will use the runner's token.
+            github-token: ${{ github.token }} # Utilise le token du runner
             ms-teams-webhook-uri: ${{ secrets.TEAMS_WEBHOOK }}
             notification-summary: Your WVD workspace is ready to use!
             notification-color: 17a2b8
