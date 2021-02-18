@@ -18,7 +18,7 @@ env:
   WORKSPACE_NAME: "Workspace-01" # Nom du Workspace
   DAGNAME: "HP-CICD-01-DAG" # Nom de l'Application Group / Check dans le template concact parameters hostname -DAG
   VMSIZE: "Standard_D2s_v3" # Gabarit des bureaux virtuels
-  NUMBERS_OF_VM: 2 # Nombre de hosts dans le Host Pool
+  NUMBERS_OF_VM: 1 # Nombre de hosts dans le Host Pool
   HOST_NAME_PREFIX: "hostVDI" # Prefix des hosts  
   DOMAINNAME: "adtsp.net" # Nom de l'ADDS à rejoindre
   OUPATH: "OU=WORKSTATION,OU=WVD,DC=adtsp,DC=net" #Unité d'Organisation AD à rejoindre / Default blank
