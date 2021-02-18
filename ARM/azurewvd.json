@@ -124,6 +124,13 @@
                 "description": "ID de l'abonnement"
             }
         },
+        "ouPath": {
+            "type":"string",
+            "metadata": {
+                "description": "OUPath for the domain join"
+            },
+            "defaultValue": ""
+        },
         "RG_Images": {
             "type": "string",
             "metadata": {
@@ -316,6 +323,7 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "name": "[parameters('domainName')]",
+                    "ouPath": "[parameters('ouPath')]",
                     "user": "[parameters('domainUsername')]",
                     "restart": "true",
                     "options": "3"
